@@ -1,0 +1,108 @@
+<html>
+	<link REL="SHORTCUT ICON" HREF="img/logoArduino.gif">
+    <link href="css/bootstrap.min.css" rel="stylesheet" media="screen" />
+    <link href="css/style.css" rel="stylesheet" media="screen" />
+
+
+	<head>
+		<script type="text/javascript">
+			var websocket;
+			function init() {
+				websocket = new WebSocket("ws://localhost:8085/websocket");
+				websocket.onopen = function(evt) { onOpen(evt); }
+				websocket.onclose = function(evt) { onClose(evt); }
+				websocket.onmessage=function(evt) {mensagemRecebida(evt);}
+				document.getElementById("statusArduino").value = 'Desconectado';
+				
+			}
+			function mensagemRecebida(evt) {
+				
+				
+				var dado = evt.data;
+				var key = dado.substring(0,2);
+				
+
+				if ( key == 'a:') {
+					document.getElementById("statusSensorA").value = dado.substring(2,dado.length);
+					
+				}else if(key == 'b:'){
+					document.getElementById("statusSensorB").value = dado.substring(2,dado.length);
+				}else if(key == 's:'){
+					document.getElementById("statusArduino").value = dado.substring(2,dado.length);
+					document.getElementById("statusSensorA").value = '';
+					document.getElementById("statusSensorB").value = '';
+				}
+				
+				
+			}
+			function onClose(evt) {
+				document.getElementById("statusServer").value = "Desconectado do Servidor";
+			}
+			function onOpen(evt) {
+				document.getElementById("statusServer").value = "Conectado ao Servidor";
+			}
+			function conectar () {
+				var porta = document.getElementById("COM").value;
+				websocket.send("O:COM" + porta);
+			}
+			function fecharSerial(){
+				websocket.send("FS:");
+			}
+			
+			window.addEventListener("load", init);
+		</script>
+		<title>Luva Ultrassonica</title>
+	</head>
+
+		<body>
+			
+
+			<div class="row-fluid" style="width: 600px; margin: 0 auto; float: none">
+				<div class = "span8">
+					<img src="img/logo_arduino.png" class="img-circle" style="width: 200px; margin-left: 100;">
+					<br />
+					<input class="span11 search-query" style="padding:16; margin:10" type="text" placeholder="Digite o numero da porta serial..." name="nome" id="COM">
+					<input class="btn btn-large btn-block btn btn-success" onclick="conectar();" type="button" value="Conectar Serial">
+					<input class="btn btn-large btn-block btn btn-danger" onclick="fecharSerial();" type="button" value="Fechar Serial">
+				</div>
+			</div>
+			
+
+			<div class="row-fluid" style="width: 700px; margin: 0 auto; float: none">
+					<form class="form-horizontal" style = "margin-top:10;">
+				
+						<div class="control-group">
+							<label class="control-label">Status Servidor:</label>
+							<div class="controls">
+								<input class = "input-xlarge" style="padding:16;" type="text" id="statusServer" disabled>
+							</div>
+						</div>
+
+			  
+
+						<div class="control-group">
+							<label class="control-label">Status Arduino:</label>
+							<div class="controls">
+								<input class = "input-xlarge" style="padding:16;" type="text" id="statusArduino" disabled>
+							</div>
+						</div>
+					
+						<div class="control-group">
+							<label class="control-label">Status Sensor A:</label>
+							<div class="controls">
+								<input class = "input-xlarge" type="text" style="padding:16;" id="statusSensorA" disabled>
+							</div>
+						</div>
+					
+						<div class="control-group">
+							<label class="control-label">Status Sensor B:</label>
+							<div class="controls">
+								<input class = "input-xlarge" type="text" style="padding:16;" id="statusSensorB" disabled>
+							</div>
+						</div>
+					
+			  </form>
+		  </div>
+
+		</body>
+</html>
